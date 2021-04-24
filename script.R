@@ -138,8 +138,8 @@ for(i in 2:ncol(d_tf)){
 }
 
 palabras_no_vacias <- apply(d[,2:ncol(d)], 2, sum, na.rm = T)
-#   pp  psoe    mm   pod    cs   vox 
-#15949 11612 32008 30032  5541   303 
+#   pp  psoe    mm   pod    cs 
+#15949 11612 32008 30032  5541  
 
 palabras_totales <- c(str_count(pp, pattern = "\\S+"),
   str_count(psoe, pattern = "\\S+"),
@@ -505,16 +505,12 @@ pod_2gram <- preproc_tidy(pod) %>% tidy() %>% unnest_tokens(bigram, x, token = "
 mm_2gram <- preproc_tidy(mm) %>% tidy() %>% unnest_tokens(bigram, x, token = "ngrams", n = 2) %>%
   count(bigram, sort = T)
 
-vox_2gram <- preproc_tidy(vox) %>% tidy() %>% unnest_tokens(bigram, x, token = "ngrams", n = 2) %>%
-  count(bigram, sort = T)
-
 pp_2gram %>% mutate(programa = "PP") %>%
   bind_rows(psoe_2gram %>% #filter(str_detect(bigram, "p ")==F & str_detect(bigram, " p")==F) %>% 
               mutate(programa = "PSOE*")) %>%
   bind_rows(cs_2gram %>% mutate(programa = "Ciudadanos*")) %>%
   bind_rows(pod_2gram %>% mutate(programa = "Unidas Podemos")) %>%
   bind_rows(mm_2gram %>% mutate(programa = "Más Madrid")) %>%
-  #bind_rows(vox_2gram %>% mutate(programa = "Vox")) %>%
   bind_tf_idf(bigram, programa, n) %>%
   group_by(programa) %>% slice_max(tf_idf, n = 6) %>%
   ungroup() %>%
